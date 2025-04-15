@@ -26,6 +26,7 @@
 #include "hardware/spi.h"
 #include "LCDdriver.h"
 #include "graphlib.h"
+#include "jxglib_adapter.h"
 
 extern const uint8_t *Image[10]; //駒画像ポインタの配列
 extern const unsigned int Color[10]; //駒画像の色指定
@@ -118,7 +119,7 @@ void keycheck(void){
 //keystatus :現在押されているボタンに対応するビットを1にする
 //keystatus2:前回押されていなくて、今回押されたボタンに対応するビットを1にする
 	oldkey=keystatus;
-	keystatus=~gpio_get_all() & KEYSMASK;
+	keystatus=(~gpio_get_all() & KEYSMASK) | jxglib_keycheck();
 	keystatus2=keystatus & ~oldkey; //ボタンから手を離したかチェック
 }
 void putblock(int8_t d){
@@ -502,6 +503,8 @@ void main(void){
 	gpio_init(LCD_RESET);
 	gpio_put(LCD_RESET, 1);
 	gpio_set_dir(LCD_RESET, GPIO_OUT);
+
+	jxglib_init();
 
 	init_graphic(); //液晶利用開始
 	LCD_WriteComm(0x37); //画面中央にするためスクロール設定
